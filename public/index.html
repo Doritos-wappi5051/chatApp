@@ -60,16 +60,23 @@
         }
 
         ws.onmessage = function (msg) {
-          const response = msg.data
-          const { id, text } = JSON.parse(msg.data)
+          // 元のコードの問題点: JSON.parse(msg.data)が期待する形式と異なっていたためエラーになっていた
+          // 修正点: 受け取った文字列をコロンで分割してIDとテキストを取得
+          const data = msg.data
+          const parts = data.split(':')
+          const id = parts[0]
+          const text = parts.slice(1).join(':') // テキスト内にコロンが含まれる場合も考慮
+
           const messageList = document.querySelector('.messages')
           const li = document.createElement('li')
-            if (id === myId) {
-li.textContent = `(${id})自分:` + text
-} else {
-li.textContent = id + ': ' + text
- }
+          if (id === myId) {
+            li.textContent = `(${id})自分:` + text
+          } else {
+            li.textContent = id + ': ' + text
+          }
           messageList.appendChild(li)
+          // 追加: 新しいメッセージが一番下に来るようにスクロール
+          messageList.scrollTop = messageList.scrollHeight;
         }
 
         ws.onerror = function (error) {

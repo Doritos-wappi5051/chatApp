@@ -59,35 +59,23 @@
           input.focus()
         }
 
-   ws.onmessage = function (msg) {
-  const data = msg.data;
-  const parts = data.split(':'); // 文字列をコロンで分割します
-  if (parts.length < 2) {
-    console.error('形式が不正なメッセージを受信しました:', data);
-    return;
-  }
-  const id = parts[0]; // 最初の部分がIDです
-  const text = parts.slice(1).join(':'); // 残りの部分はテキストです（テキスト自体にコロンが含まれる場合のため）
-
-  const messageList = document.querySelector('.messages');
-  const li = document.createElement('li');
-
-  if (id === myId) {
-    li.textContent = `(${id})自分: ` + text; // 読みやすくするためにコロンの後にスペースを追加
-  } else {
-    li.textContent = id + ': ' + text; // 読みやすくするためにコロンの後にスペースを追加
-  }
-  messageList.appendChild(li);
-  // 最新のメッセージに自動スクロール
-  messageList.scrollTop = messageList.scrollHeight;
-};
+        ws.onmessage = function (msg) {
+          const response = msg.data
+          const { id, text } = JSON.parse(msg.data)
+          const messageList = document.querySelector('.messages')
+          const li = document.createElement('li')
+            if (id === myId) {
+li.textContent = `(${id})自分:` + text
+} else {
+li.textContent = id + ': ' + text
+ }
           messageList.appendChild(li)
         }
 
         ws.onerror = function (error) {
           console.error('WebSocket Error: ', error)
         }
-      
+      }
 
       main()
     </script>

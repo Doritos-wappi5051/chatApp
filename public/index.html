@@ -17,6 +17,15 @@
         padding: 0;
         margin: 0;
       }
+      .message-content {
+        display: block;
+      }
+      .timestamp {
+        font-size: 0.7em; 
+        color: #888; 
+        display: block; 
+        margin-top: 2px; 
+      }
       .form {
         display: flex;
       }
@@ -49,39 +58,61 @@
         const myId = self.crypto.randomUUID().substr(0, 8)
 
         const form = document.querySelector('.form')
+        const messageList = document.querySelector('.messages')
 
         form.onsubmit = function (e) {
           e.preventDefault()
           const input = document.querySelector('.input')
-          const text = input.value
-          ws.send(myId + ':' + text)
+          const text = input.value.trim()
+          if (text === '') return;
+
+          // 現在の時刻を取得
+          const now = new Date();
+          const timestamp = now.toLocaleTimeString('ja-JP', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          });
+       
+          ws.send(`${myId}|${timestamp}|${text}`)
           input.value = ''
           input.focus()
         }
 
         ws.onmessage = function (msg) {
-          // 元のコードの問題点: JSON.parse(msg.data)が期待する形式と異なっていたためエラーになっていた
-          // 修正点: 受け取った文字列をコロンで分割してIDとテキストを取得
           const data = msg.data
-          const parts = data.split(':')
+       
+          const parts = data.split('|')
+
+          
+
           const id = parts[0]
-          const text = parts.slice(1).join(':') // テキスト内にコロンが含まれる場合も考慮
+          const timestamp = parts[1] // タイムスタンプを取得
+          const text = parts.slice(2).join('|') 
 
-          const messageList = document.querySelector('.messages')
           const li = document.createElement('li')
+          const contentSpan = document.createElement('span')
+          contentSpan.classList.add('message-content');
+
+          const timestampSpan = document.createElement('span')
+          timestampSpan.classList.add('timestamp');
+
           if (id === myId) {
-            li.textContent = `(${id})自分:` + text
+            contentSpan.textContent = `(${id})自分: ${text}`
+            timestampSpan.textContent = `送信時刻: ${timestamp}`
           } else {
-            li.textContent = id + ': ' + text
+            contentSpan.textContent = `${id}: ${text}`
+            timestampSpan.textContent = `受信時刻: ${timestamp}`
           }
+
+          li.appendChild(contentSpan);
+          li.appendChild(timestampSpan);
           messageList.appendChild(li)
-          // 追加: 新しいメッセージが一番下に来るようにスクロール
-          messageList.scrollTop = messageList.scrollHeight;
+
+          // 新しいメッセージが一番下に来るようにスクロール
+          messageList.scrollTop = messageList.scrollHeight
         }
 
-        ws.onerror = function (error) {
-          console.error('WebSocket Error: ', error)
-        }
       }
 
       main()

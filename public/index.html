@@ -99,17 +99,16 @@
 
           if (id === myId) {
             contentSpan.textContent = `(${id})自分: ${text}`
-            timestampSpan.textContent = `送信時刻: ${timestamp}`
+            timestampSpan.textContent = `送信: ${timestamp}`
           } else {
             contentSpan.textContent = `${id}: ${text}`
-            timestampSpan.textContent = `受信時刻: ${timestamp}`
+            timestampSpan.textContent = `受信: ${timestamp}`
           }
 
           li.appendChild(contentSpan);
           li.appendChild(timestampSpan);
           messageList.appendChild(li)
 
-          // 新しいメッセージが一番下に来るようにスクロール
           messageList.scrollTop = messageList.scrollHeight
         }
 
